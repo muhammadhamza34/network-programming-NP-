@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
+using System.IO;
+using System.Threading;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Console.WriteLine("This is client");
+
+            try
+            {
+                TcpClient client = new TcpClient("127.0.0.1", 8080);
+                
+                
+                HandlerClientWriter ob = new HandlerClientWriter();
+                Thread t = new Thread(() => ob.Handle(client));
+                t.Start();
+                Thread t2 = new Thread(() => ob.reader(client));
+                t2.Start();
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+
+
+
+
+
+        }
+    }
+    public class HandlerClientWriter
+    {
+        public void Handle(TcpClient client)
+        {
+            
+            while (true)
+            {
+                StreamWriter writer = new StreamWriter(client.GetStream());
+                string msg = Console.ReadLine();
+                writer.WriteLine(msg);
+                Console.WriteLine("aa"+ msg);
+                writer.Flush();
+            }
+        }
+        public void reader(TcpClient client)
+        {
+            StreamReader reader = new StreamReader(client.GetStream());
+
+            string s = string.Empty;
+            while (true)
+            {
+                Console.WriteLine(reader.ReadLine());
+            }
+        }
+    }
+}

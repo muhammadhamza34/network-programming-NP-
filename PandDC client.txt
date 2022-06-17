@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
+using System.IO;
+using System.Threading;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Console.WriteLine("This is client");
+
+            //try
+            //{
+            //    TcpClient client = new TcpClient("127.0.0.1", 8080);
+            //    StreamReader r = new StreamReader(client.GetStream());
+            //    StreamWriter writer = new StreamWriter(client.GetStream());
+            //    string data = string.Empty;
+            //    data = r.ReadLine();
+            //    Console.WriteLine("received :" + data);
+
+            //    string[] numbers = data.Split(',');
+            //    int sum = 0;
+            //    for (int i = 0; i < numbers.Length; i++)
+            //    {
+            //        sum = sum + Convert.ToInt32(numbers[i]);
+
+
+            //    }
+            //    Thread.Sleep(10);
+            //    string data2 = sum.ToString();
+            //    writer.WriteLine(data2);
+            //    writer.Flush();
+            //    Console.WriteLine("sending :" + sum.ToString());
+
+            //    writer.Close();
+            //    client.Close();
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //}
+            int sum = 0;
+            for (int i = 0; i < 1001; i++)
+			{
+                sum = sum + i;
+			}
+            Console.WriteLine(sum);
+        }
+    }
+}

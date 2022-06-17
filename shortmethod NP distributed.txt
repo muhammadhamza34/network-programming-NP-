@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Console.WriteLine("This is server");
+            List<int> answers = new List<int>();
+
+            IPAddress ip = IPAddress.Parse("172.16.1.114");
+            IPEndPoint ipe = new IPEndPoint(ip, 12000);
+
+            Socket listner = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            int[] musibat = new int[100];
+            int c =5;
+
+            listner.Bind(ipe);
+
+            listner.Listen(c);
+
+            int dis = musibat.Length / c;
+            int con=0;
+            Socket handler;
+            byte[] buffer = new byte[1024];
+            while (true)
+            {
+                handler = listner.Accept();
+                con++;
+
+               answers.Add(solution(con, dis, musibat, buffer, handler));
+
+            }
+
+
+            Socket firstclientagain = listner.Accept();
+
+
+            string data2 = solution(1, 1, answers.ToArray(), buffer, firstclientagain).ToString();
+            Console.WriteLine(data2);
+
+            handler.Shutdown(SocketShutdown.Both);
+            handler.Close();
+
+
+
+
+
+
+
+        }
+        public static int  solution(int con, int dis, int[]musibat,byte[] buffer, Socket handler)
+        {
+               int start = (con - 1) * dis;
+                int end = (con * dis) - 1;
+                
+                
+                string data = "";
+                for (int i = start; i <= end; i++)
+                {
+                    data += musibat[i].ToString() + ",";
+                }
+                buffer = Encoding.ASCII.GetBytes(data);
+                handler.Send(buffer);
+                handler.Receive(buffer);
+                return Convert.ToInt32(Encoding.ASCII.GetString(buffer));
+        }
+    }
+}

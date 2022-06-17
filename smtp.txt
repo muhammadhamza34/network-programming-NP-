@@ -1,0 +1,17 @@
+
+            MailMessage mm = new MailMessage("youremail@gmail.com", "personemail@gmail.com);
+            mm.Subject = "Recipt details...";
+            mm.Body = "<h3 style='color:red'> Email Body </h3>";
+            mm.IsBodyHtml = true;
+
+            SmtpClient smtp = new SmtpClient();
+            smtp.Host = "smtp.gmail.com";
+            smtp.Port = 25;
+            smtp.EnableSsl = true;
+
+            NetworkCredential nc = new NetworkCredential("youremail@gmail.com", "password");
+            smtp.UseDefaultCredentials = true;
+            smtp.Credentials = nc;
+            smtp.Send(mm);
+            sqlconn.Close();
+      

@@ -1,0 +1,147 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.IO;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            Console.WriteLine("This is server");
+
+            TcpListener listener = null;
+
+            List<TcpClient> clist = new List<TcpClient>();
+            int[] arr = new int[1000];
+            for (int i = 0; i < 1000; i++)
+            {
+                arr[i] = i;
+            }
+            try
+            {
+                listener = new TcpListener(IPAddress.Parse("172.16.1.114"), 8080);
+                listener.Start();
+                Humaripyariclass wedwali = new Humaripyariclass();
+                int c = 50;
+                wedwali.ansrs = new int[c];
+
+                for (int i = 0; i < c; i++)
+                {
+                    wedwali.ansrs[i] = -1;
+                }
+
+                int n = 1;
+                int dis = arr.Length / c;
+                while (n <= c)
+                {
+
+                    TcpClient client = listener.AcceptTcpClient();
+                    clist.Add(client);
+
+                    int start = (n - 1) * dis;
+                    int end = (n * dis) - 1;
+                    int id = n - 1;
+                    Thread w = new Thread(() => wedwali.Handle(client, arr, start, end, id));
+                    w.Start();
+
+
+                    n++;
+
+
+                }
+
+                Thread w2 = new Thread(() => wedwali.monitor(c));
+                w2.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                if (listener != null)
+                {
+                    listener.Stop();
+                }
+            }
+
+
+
+
+
+
+        }
+    }
+    public class Humaripyariclass
+    {
+        public int[] ansrs;
+
+        public void Handle(TcpClient client, int[] arr, int start, int end, int id)
+        {
+
+            StreamReader reader = new StreamReader(client.GetStream());
+            StreamWriter writer = new StreamWriter(client.GetStream());
+            string data = "";
+            for (int i = start; i <= end; i++)
+            {
+                data += arr[i].ToString() + ",";
+            }
+            data = data.Substring(0, data.Length - 1);
+            writer.WriteLine(data);
+            writer.Flush();
+            //Console.WriteLine("sending " + id + " :" + data);
+            Console.WriteLine(reader);
+            string data2 = string.Empty;
+            data2 = reader.ReadLine();
+            int sum = Convert.ToInt32(data2);
+            Console.WriteLine("received " + id + " :" + sum);
+            ansrs[id] = sum;
+            try
+            {
+                writer.Close();
+                reader.Close();
+                client.Close();
+            }
+            catch
+            {
+
+            }
+
+
+
+
+
+
+
+        }
+
+        public void monitor(int c)
+        {
+            int count = c;
+
+            while (count > 0)
+            {
+                count = 0;
+                for (int i = 0; i < ansrs.Length; i++)
+                {
+                    if (ansrs[i] == -1)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            Console.WriteLine(ansrs.Sum());
+
+        }
+
+    }
+}

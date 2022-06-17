@@ -1,0 +1,87 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.IO;
+
+namespace Server
+{
+    class Program
+    {
+        static List<TcpClient> clients = new List<TcpClient>();
+        static void Main(string[] args)
+        {
+            
+
+            Console.WriteLine("This is server");
+
+            TcpListener listener = null;
+            try
+            {
+                listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 8080);
+                listener.Start();
+                Console.WriteLine("Server started...");
+                int conn = 0;
+                Handler b = new Handler();
+                while (true)
+                {
+
+                    TcpClient client = listener.AcceptTcpClient();
+                    clients.Add(client);
+                    conn++;
+
+                    Thread n = new Thread(() => b.Handle(client, conn));
+                    n.Start();
+
+                    broadcast("Client " + conn + " joined");
+                   
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                if (listener != null)
+                {
+                   // listener.Stop();
+                }
+            }
+
+
+
+        }
+        public static void broadcast(string msg)
+        {
+            foreach (TcpClient item in clients)
+            {
+                StreamWriter writer = new StreamWriter(item.GetStream());
+                Console.WriteLine("sending "+msg);
+
+                writer.WriteLine(msg);
+                writer.Flush();
+            }
+        }
+    }
+    public class Handler
+    {
+
+        public void Handle(TcpClient client,int conn)
+        {
+         
+            StreamReader reader = new StreamReader(client.GetStream());
+            while (true)
+            {
+                string s = reader.ReadLine();
+                Console.WriteLine("received " + s);
+                Program.broadcast(s);
+            }
+            
+        }
+    }
+}
